@@ -1,7 +1,7 @@
 <snippet>
   <content>
   
-# 3D SIFT CUDA
+# 3D SIFT GPU
 
 SIFT is an algorithm introduced by David G.Lowe in 1999. 
 This code is based on the work of Matthew Towes at École de technologie supérieure ÉTS.
