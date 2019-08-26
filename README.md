@@ -1,0 +1,50 @@
+<snippet>
+  <content>
+  
+# 3D SIFT CUDA
+
+SIFT is an algorithm introduced by David G.Lowe in 1999. 
+This code is based on the work of Matthew Towes at École de technologie supérieure ÉTS.
+This is a CUDA implémentation of the base code. 
+There is also a fast descriptor computation using BRIEF and 2 other method introduced in the linked publication.
+
+## Installation
+
+You will need at least cmake 3.10 and cuda 10 install on your computer. 
+1. Download it !
+2. Go in main directory and cmake the CMAKEList file. 
+3. Once all the makefile are create use the make to finish the installation
+4. The first make will download all needed library so it will take time.
+
+## Usage
+
+This algorithm is design to extract features from 3D volumes. The main format are accepted ( Nifti and Analyse format)
+The algorith will automatically use the best GPU card on your computer. 
+
+    ./featExtract [options] \<input image\> \<output features\>
+  
+		<input image>: nifti (.nii,.hdr,.nii.gz) or raw input volume (IEEE 32-bit float, little endian).
+		<output features>: output file with features.
+		[options]
+		  -w         : output feature geometry in world coordinates, NIFTI qto_xyz matrix (default is voxel units).
+		  -2+        : double input image size.
+		  -2-        : halve input image size.
+		  -d[0-9]    : set device id to be used, 0 mean no device so CPU version will be used.
+		  -b         : Use the BRIEF descriptor format
+		  -br        : Use the RRIEF descriptor format
+		  -bn        : Use the NRRIEF descriptor format
+
+## History
+
+TODO: Write history
+
+## Credits
+
+Matthew Towes at École de technologie supérieure ÉTS.
+
+## Publication
+
+TODO: Write publication and link it here
+
+</content>
+</snippet>
