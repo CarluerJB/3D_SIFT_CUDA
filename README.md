@@ -36,7 +36,7 @@ The algorith will automatically use the best GPU card on your computer.
 
 ## History
 
-TODO: Write history
+Aug 2, 2019 : Publication of CUDA 3D SIFT
 
 ## Credits
 
@@ -45,6 +45,15 @@ Jean-Baptiste CARLUER at École de technologie supérieure ÉTS.
 ## Publication
 
 TODO: Write publication and link it here
+
+## References
+
+*Lowe D. et al, Object Recognition from Local Scale-Invariant Features, Proceedings of the International Conference on Computer Vision, 1999, vol 2, 1150-1157.*
+
+*Calonder M. et al, BRIEF: Binary Robust Independent Elementary Features, Computer Science, 2010, vol 6314, 778-792.*
+
+## Software used
+http://www.matthewtoews.com/fba/featExtract1.6.tar.gz}{http://www.matthewtoews.com/fba/featExtract1.6.tar.gz
 
 </content>
 </snippet>
