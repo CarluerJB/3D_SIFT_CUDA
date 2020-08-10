@@ -1238,8 +1238,10 @@ gb3d_blur3d_interleave(
 		//return blur_3d_simpleborders_CUDA_Row_Rot_Shared_mem(fio1, fioTemp, fio2, iFeature, ppImgFilter);
 		//if (fio1.scale <= 4) {
 		if(best_device_id!=0){
-			return blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(fio1, fioTemp, fio2, iFeature, ppImgFilter, best_device_id);
-			//return blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(fio1, fioTemp, fio2, iFeature, ppImgFilter, best_device_id);
+                        // model 6
+			//return blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(fio1, fioTemp, fio2, iFeature, ppImgFilter, best_device_id);
+			// model 5
+                        return blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(fio1, fioTemp, fio2, iFeature, ppImgFilter, best_device_id);
 		}
 		else{
 			return blur_3d_simpleborders( fio1, fioTemp, fio2, iFeature, ppImgFilter );
