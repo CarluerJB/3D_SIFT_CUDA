@@ -351,7 +351,7 @@ write_data_file(
 
 	int iFloatsWritten = fwrite( fio.pfVectors, sizeof(float), iDataSizeFloat, outfile );
 	float *array_h=static_cast<float *>(fio.pfVectors);
-  cudaMemcpy(fio.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice);
+  gpuErrchk(cudaMemcpy(fio.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice) );
 	if( iFloatsWritten != iDataSizeFloat )
 	{
 		fclose( outfile );
@@ -381,7 +381,7 @@ fioAllocate(
 	assert( iDataSizeFloat > 0 );
 
 	fio.pfVectors = new float[iDataSizeFloat];
-	cudaMalloc((void**)&fio.d_pfVectors, iDataSizeFloat*sizeof(float));
+	gpuErrchk(cudaMalloc((void**)&fio.d_pfVectors, iDataSizeFloat*sizeof(float)) );
 
 	if( !fio.pfVectors )
 	{
@@ -397,7 +397,7 @@ fioAllocate(
 	if( !fio.pfMeans )
 	{
 		delete [] fio.pfVectors;
-		cudaFree(fio.d_pfVectors);
+		gpuErrchk(cudaFree(fio.d_pfVectors) );
 		return 0;
 	}
 
@@ -406,7 +406,7 @@ fioAllocate(
 	{
 		delete [] fio.pfMeans;
 		delete [] fio.pfVectors;
-		cudaFree(fio.d_pfVectors);
+		gpuErrchk(cudaFree(fio.d_pfVectors) );
 		return 0;
 	}
 
@@ -514,7 +514,7 @@ fioDelete(
 		delete [] fio.pfVarrs;
 		delete [] fio.pfMeans;
 		delete [] fio.pfVectors;
-		cudaFree(fio.d_pfVectors);
+		gpuErrchk(cudaFree(fio.d_pfVectors) );
 		fio.pfVarrs=0;
 		fio.pfMeans=0;
 		fio.pfVectors=0;
@@ -1535,7 +1535,7 @@ fioSubSampleInterpolate(
 	}
 	int iDataSizeFloat=fioOut.x*fioOut.y*fioOut.z*fioOut.t*fioOut.iFeaturesPerVector*sizeof(float);
 	float *array_h=static_cast<float *>(fioOut.pfVectors);
-	cudaMemcpy(fioOut.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice);
+	gpuErrchk(cudaMemcpy(fioOut.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice) );
 	return 1;
 }
 
@@ -1602,7 +1602,7 @@ fioSubSample(
 		}
 	}
 	int iDataSizeFloat = fioOut.x*fioOut.y*fioOut.z*fioOut.t*fioOut.iFeaturesPerVector*sizeof(float);
-	cudaMemcpy(fioOut.d_pfVectors, fioOut.pfVectors, iDataSizeFloat, cudaMemcpyHostToDevice);
+	gpuErrchk(cudaMemcpy(fioOut.d_pfVectors, fioOut.pfVectors, iDataSizeFloat, cudaMemcpyHostToDevice) );
 	return 1;
 }
 
@@ -1814,7 +1814,7 @@ fioCopy(
 				fioDst.pfVectors[iXIndex + iDstFeature] = fioSrc.pfVectors[iXIndex2 + iSrcFeature];
 				float *array_h=static_cast<float *>(fioSrc.pfVectors);
 				int iDataSizeFloat = fioDst.z*fioDst.y*fioDst.x*fioDst.iFeaturesPerVector*fioDst.t*sizeof(float);
-				cudaMemcpy(fioDst.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice);
+				gpuErrchk(cudaMemcpy(fioDst.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice) );
 			}
 		}
 	}
@@ -1840,7 +1840,7 @@ fioCopy(
 		);
 		float *array_h=static_cast<float *>(fioSrc.pfVectors);
 		int iDataSizeFloat = fioDst.z*fioDst.y*fioDst.x*fioDst.iFeaturesPerVector*fioDst.t*sizeof(float);
-		cudaMemcpy(fioDst.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice);
+		gpuErrchk(cudaMemcpy(fioDst.d_pfVectors, array_h, iDataSizeFloat, cudaMemcpyHostToDevice) );
 
 	return 1;
 }
