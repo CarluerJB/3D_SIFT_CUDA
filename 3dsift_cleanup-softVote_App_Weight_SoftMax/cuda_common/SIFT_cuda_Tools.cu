@@ -181,7 +181,7 @@ blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(
   int	iFeature,
   PpImage &ppImgFilter,
   int best_device_id) {
-    assert(best_device_id!=0);
+    assert(best_device_id!=-1);
     gpuErrchk(cudaSetDevice(best_device_id));
     // Set Sizes
     int iDataSizeFloat = fio2.x*fio2.y*fio2.z*fio2.t*fio2.iFeaturesPerVector*sizeof(float);
@@ -196,25 +196,30 @@ blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(
 
     // Allocation of device memory + memcpy
     float *d_pfFilter; // FILTER DATA
+    gpuErrchk(cudaSetDevice(best_device_id));
     gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
+    gpuErrchk(cudaSetDevice(best_device_id));
     gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
 
     // Launch Kernel Filter
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Row_R<<<dimGrid, dimBlock, dimCache>>>(fio1, fio2, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
     gpuErrchk(cudaDeviceSynchronize());
-
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Col_R<<<dimGrid, dimBlock, dimCache>>>(fio2, fio1, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
     gpuErrchk(cudaDeviceSynchronize());
-
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Depth_R<<<dimGrid, dimBlock, dimCache>>>(fio1, fio2, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
     gpuErrchk(cudaDeviceSynchronize());
 
     // Copyback image filtered
+    gpuErrchk(cudaSetDevice(best_device_id));
     gpuErrchk(cudaMemcpy(fio2.pfVectors, fio2.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
+    gpuErrchk(cudaSetDevice(best_device_id));
     gpuErrchk(cudaFree(d_pfFilter));
     return 1;
 }
@@ -451,7 +456,7 @@ blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(
   int best_device_id) {
 
     //Check Device parameters
-    assert(best_device_id!=0);
+    assert(best_device_id!=-1);
     gpuErrchk(cudaSetDevice(best_device_id));
 
     // Set Sizes

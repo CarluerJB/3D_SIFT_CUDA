@@ -1348,11 +1348,11 @@ generateFeatures3D_efficient(
 {
 	Feature3D feat3D;
 	FEATUREIO featSample;
+	featSample.device=-1;
 	featSample.x = featSample.y = featSample.z = Feature3D::FEATURE_3D_DIM;
 	featSample.t = 1;
 	featSample.iFeaturesPerVector = 1;
 	fioAllocate(featSample);
-
 
 	FEATUREIO featJunk; std::memset(&featJunk, 0, sizeof(featJunk));
 
@@ -1527,7 +1527,7 @@ detectExtrema4D_test_interleave(
 	LOCATION_VALUE_XYZ_ARRAY &lvaMaxima,
 	int best_device_id
 ){
-	if (best_device_id!=0) {
+	if (best_device_id!=-1) {
 		detectExtrema4D_test_cuda(
 			fioD0, fioD1, fioSumOfSign,
 			lvaMinima,
@@ -1719,7 +1719,6 @@ generateFeature3D(
 	// derivatives should be calculated on rescaled image ...
 	//   ..and never again will I calculate derivatives on a non-scaled image ...
 
-
 	// Determine feature image content - init rotation to identity
 	std::memset(&(feat3D.ori[0][0]), 0, sizeof(feat3D.ori));
 	feat3D.ori[0][0] = 1; feat3D.ori[1][1] = 1; feat3D.ori[2][2] = 1;
@@ -1727,7 +1726,6 @@ generateFeature3D(
 	{
 		return -1;
 	}
-
 	float fMaxPixel = fioGetPixel(fioSample, 0, 0, 0);
 	float fMinPixel = fioGetPixel(fioSample, 0, 0, 0);
 	for (int zz = 0; zz < Feature3D::FEATURE_3D_DIM; zz++)
@@ -1742,13 +1740,11 @@ generateFeature3D(
 	}
 
 	feat3D.NormalizeData();
-
 	//// Determine feature eigenorientation
 	if (determineOrientation3D(feat3D))
 	{
 		return -1;
 	}
-
 	float fEigSum = feat3D.eigs[0] + feat3D.eigs[1] + feat3D.eigs[2];
 	float fEigPrd = feat3D.eigs[0] * feat3D.eigs[1] * feat3D.eigs[2];
 	float fEigSumProd = fEigSum*fEigSum*fEigSum;
@@ -1764,7 +1760,6 @@ generateFeature3D(
 	{
 		fMinRatio = fRatio;
 	}
-
 	if (fEigSumProd < fEigThres*fEigPrd || fEigThres < 0)
 	{
 	}
@@ -1783,7 +1778,6 @@ generateFeature3D(
 	}
 
 #ifdef INCLUDE_EIGENORIENTATION_FEATURE
-
 	// Sample feature eigenorientation
 	if (sampleImage3D(feat3D, fioSample, fioImg, fioDx, fioDy, fioDz) != 0)
 	{
@@ -1824,7 +1818,6 @@ generateFeature3D(
 	}
 
 #endif
-
 	// There are multiple orientations, create feature for each
 	// Pass in enough room for 30 rotation matrices (each consists of three 3D unit vectors)
 	float pfOri[30 * 9];
@@ -2854,9 +2847,7 @@ determineCanonicalOrientation3D(
 	float *array_h2=static_cast<float *>(fioT2.pfVectors);//get a 1d array of pixel float
 	cudaMemcpy(fioT2.d_pfVectors, array_h2, iDataSizeFloat, cudaMemcpyHostToDevice); //get the array to device image
 	*/
-
-	gb3d_blur3d(fioT0, fioT1, fioT2, fBlurGradOriHist, 0.01, 0);
-
+	gb3d_blur3d(fioT0, fioT1, fioT2, fBlurGradOriHist, 0.01, -1);
 	regFindFEATUREIOPeaks(lvaPeaks, fioT2);
 	lvSortHighLow(lvaPeaks);
 	sprintf(pcFileName, "bin%5.5d_orig", iCode);
@@ -2978,7 +2969,7 @@ determineCanonicalOrientation3D(
 		*/
 
 		// Blur, find peaks
-		gb3d_blur3d(fioT0, fioT1, fioT2, fBlurGradOriHist, 0.01, 0);
+		gb3d_blur3d(fioT0, fioT1, fioT2, fBlurGradOriHist, 0.01, -1);
 		regFindFEATUREIOPeaks(lvaPeaks2, fioT2);
 		lvSortHighLow(lvaPeaks2);
 		sprintf(pcFileName, "bin%5.5d_orig", iCode);

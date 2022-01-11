@@ -29,6 +29,7 @@ typedef struct _FEATUREIO
 	float *d_pfVectors; // pointer to data on GPU
 	float *pfMeans;	// Mean
 	float *pfVarrs; // Varriance
+	int device=-1;
 } FEATUREIO;
 
 typedef struct _OUTPUT_RANGE
