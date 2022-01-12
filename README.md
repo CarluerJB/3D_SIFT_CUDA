@@ -3,9 +3,12 @@
   
 # 3D SIFT GPU
 
-SIFT is an algorithm introduced by David G.Lowe in 1999. 
+SIFT is an algorithm introduced by David G.Lowe in 1999.
+	  
 This code is based on the work of Matthew Towes at École de technologie supérieure ÉTS.
+	  
 This is a CUDA implémentation of the base code. 
+	  
 There is also a fast descriptor computation using BRIEF and 2 other method introduced in the linked publication.
 
 ## Installation
@@ -36,7 +39,8 @@ This algorithm is design to extract features from 3D volumes. The main format ar
 ## History
 
 Aug 2, 2019 : Publication of CUDA 3D SIFT
-Dec 19, 2021 : Publication of Paper "GPU optimization of the 3D Scale-invariant Feature Transform Algorithm and a Novel BRIEF-inspired 3D Fast Descriptor"
+
+Dec 19, 2021 : Publication of "GPU optimization of the 3D Scale-invariant Feature Transform Algorithm and a Novel BRIEF-inspired 3D Fast Descriptor"
 
 ## Credits
 
