@@ -4,8 +4,8 @@ add_compile_options(-std=c++11 -static)
 project(3DSIFT LANGUAGES CXX CUDA)
 
 find_package(CUDA REQUIRED)
-list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_30,code=compute_30)
-list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_32,code=compute_32)
+#list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_30,code=compute_30)
+#list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_32,code=compute_32)
 list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_35,code=compute_35)
 list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_37,code=compute_37)
 list( APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code=compute_52)
@@ -159,8 +159,8 @@ ExternalProject_Add(FLANN
   SOURCE_DIR "${PROJECT_BINARY_DIR}/deps/FLANN"
   BINARY_DIR "${PROJECT_BINARY_DIR}/deps/FLANN-build"
   INSTALL_DIR "${PROJECT_BINARY_DIR}/deps/FLANN-install"
-  GIT_REPOSITORY "${git_protocol}://github.com/mariusmuja/flann"
-  GIT_TAG "f3a17cd3f94a0e9dd8f6a55bce11536c50d4fb24"
+  GIT_REPOSITORY "${git_protocol}://gitlab.com/slckr/flann"
+  GIT_TAG "94d066a07d288044ba8f9534b365dbd2171f106a"
   CMAKE_ARGS
   -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>

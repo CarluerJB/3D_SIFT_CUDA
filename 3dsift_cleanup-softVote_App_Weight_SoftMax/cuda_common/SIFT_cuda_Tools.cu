@@ -2,7 +2,7 @@
 // AUTHOR     : CARLUER Jean-Baptiste
 // CREATE DATE     : 17/03/19
 // PURPOSE     : Internship at the ETS, optimisation CUDA of the 3D SIFT of Matthew Towes
-// SPECIAL NOTES: 
+// SPECIAL NOTES:
 // ===============================
 // Change History:
 //                  * ADD -- 3D convolution with rotation
@@ -48,34 +48,34 @@ blur_3d_simpleborders_CUDA_Shared_mem(
 
     // Allocation of device memory + memcpy
     float *d_fioIn; // INPUT IMAGE
-    cudaMalloc((void**)&d_fioIn, iDataSizeFloat); //alloc image
+    gpuErrchk(cudaMalloc((void**)&d_fioIn, iDataSizeFloat)); //alloc image
     float *array_h=static_cast<float *>(fio1.pfVectors);//get a 1d array of pixel float
-    cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice); //get the array to device image
+    gpuErrchk(cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice)); //get the array to device image
 
     float *d_fioOut; // OUTPUT IMAGE
-    cudaMalloc((float**)&d_fioOut, iDataSizeFloat); //alloc image
-    cudaMemset(d_fioOut, 0, iDataSizeFloat); // Set all val to 0
+    gpuErrchk(cudaMalloc((float**)&d_fioOut, iDataSizeFloat)); //alloc image
+    gpuErrchk(cudaMemset(d_fioOut, 0, iDataSizeFloat)); // Set all val to 0
 
     float *d_pfFilter; // FILTER DATAS
-    cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size);
+    gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
-    cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
 
 
     // Launch Kernel Filter
     conv3d_shared<<<dimGrid, dimBlock, dimCache>>>(d_fioIn, d_fioOut, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
     //gpuErrchk( cudaPeekAtLastError() );
 
 
     // Copyback image filtered
-    cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
-    cudaFree(d_fioIn);
-    cudaFree(d_fioOut);
-    cudaFree(d_pfFilter);
+    gpuErrchk(cudaFree(d_fioIn));
+    gpuErrchk(cudaFree(d_fioOut));
+    gpuErrchk(cudaFree(d_pfFilter));
 
     return 1;
 }
@@ -181,8 +181,8 @@ blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(
   int	iFeature,
   PpImage &ppImgFilter,
   int best_device_id) {
-    assert(best_device_id!=0);
-    cudaSetDevice(best_device_id);
+    assert(best_device_id!=-1);
+    gpuErrchk(cudaSetDevice(best_device_id));
     // Set Sizes
     int iDataSizeFloat = fio2.x*fio2.y*fio2.z*fio2.t*fio2.iFeaturesPerVector*sizeof(float);
     int kernel_size = ppImgFilter.Cols();
@@ -196,26 +196,31 @@ blur_3d_simpleborders_CUDA_Row_Col_Shared_mem(
 
     // Allocation of device memory + memcpy
     float *d_pfFilter; // FILTER DATA
-    cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size);
+    gpuErrchk(cudaSetDevice(best_device_id));
+    gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
-    cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaSetDevice(best_device_id));
+    gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
 
     // Launch Kernel Filter
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Row_R<<<dimGrid, dimBlock, dimCache>>>(fio1, fio2, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
-
+    gpuErrchk(cudaDeviceSynchronize());
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Col_R<<<dimGrid, dimBlock, dimCache>>>(fio2, fio1, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
-
+    gpuErrchk(cudaDeviceSynchronize());
+    gpuErrchk(cudaSetDevice(best_device_id));
     conv3d_shared_Depth_R<<<dimGrid, dimBlock, dimCache>>>(fio1, fio2, d_pfFilter, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
 
     // Copyback image filtered
-    cudaMemcpy(fio2.pfVectors, fio2.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaSetDevice(best_device_id));
+    gpuErrchk(cudaMemcpy(fio2.pfVectors, fio2.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
-    cudaFree(d_pfFilter);
+    gpuErrchk(cudaSetDevice(best_device_id));
+    gpuErrchk(cudaFree(d_pfFilter));
     return 1;
 }
 
@@ -451,8 +456,8 @@ blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(
   int best_device_id) {
 
     //Check Device parameters
-    assert(best_device_id!=0);
-    cudaSetDevice(best_device_id);
+    assert(best_device_id!=-1);
+    gpuErrchk(cudaSetDevice(best_device_id));
 
     // Set Sizes
     int iDataSizeFloat = fio1.x*fio1.y*fio1.z*fio1.t*fio1.iFeaturesPerVector*sizeof(float);
@@ -467,9 +472,9 @@ blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(
 
     // Allocation of device memory + memcpy
     float *d_pfFilter; // FILTER DATAS
-    cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size);
+    gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
-    cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
 
 
     // Launch Kernel Filter
@@ -485,11 +490,11 @@ blur_3d_simpleborders_CUDA_3x1D_W_Rot_Shared_mem(
     conv3d_shared_Depth<<<dimGridZ, dimBlock, dimCache>>>(fio1, fio2, d_pfFilter, kernel_size, kernel_radius, cache_size);
 
     // Copyback image filtered
-    cudaMemcpy(fio2.pfVectors, fio2.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaMemcpy(fio2.pfVectors, fio2.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
-    cudaFree(d_pfFilter);
+    gpuErrchk(cudaFree(d_pfFilter));
     return 1;
 }
 
@@ -739,45 +744,45 @@ blur_3d_simpleborders_CUDA_BLOCK_Shared_mem(
 
     // Allocation of device memory + memcpy
     float *d_fioIn; // INPUT IMAGE
-    cudaMalloc((void**)&d_fioIn, iDataSizeFloat); //alloc image
+    gpuErrchk(cudaMalloc((void**)&d_fioIn, iDataSizeFloat)); //alloc image
     float *array_h=static_cast<float *>(fio1.pfVectors);//get a 1d array of pixel float
-    cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice); //get the array to device image
+    gpuErrchk(cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice)); //get the array to device image
     float *d_fioOut; // OUTPUT IMAGE
-    cudaMalloc((float**)&d_fioOut, iDataSizeFloat); //alloc image
-    cudaMemset(d_fioOut, 0, iDataSizeFloat); // Set all val to 0
+    gpuErrchk(cudaMalloc((float**)&d_fioOut, iDataSizeFloat)); //alloc image
+    gpuErrchk(cudaMemset(d_fioOut, 0, iDataSizeFloat)); // Set all val to 0
     float *d_pfFilter; // FILTER DATAS
-    cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size);
+    gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
-    cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
 
 
     // Launch Kernel Filter
     dim3 dimGrid(fio1.x, fio1.y, fio1.z);
     conv3d_shared_Row_BLOCK<<<dimGrid, kernel_size>>>(d_fioIn, d_fioOut, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk( cudaPeekAtLastError() );
 
-    cudaMemset(d_fioIn, 0.0, iDataSizeFloat); // Set all val to 0
+    gpuErrchk(cudaMemset(d_fioIn, 0.0, iDataSizeFloat)); // Set all val to 0
 
     conv3d_shared_Col_BLOCK<<<dimGrid, kernel_size>>>(d_fioOut, d_fioIn, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk( cudaPeekAtLastError() );
 
-    cudaMemset(d_fioOut, 0.0, iDataSizeFloat); // Set all val to 0
+    gpuErrchk(cudaMemset(d_fioOut, 0.0, iDataSizeFloat)); // Set all val to 0
 
     conv3d_shared_Depth_BLOCK<<<dimGrid, kernel_size>>>(d_fioIn, d_fioOut, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk( cudaPeekAtLastError() );
 
 
     // Copyback image filtered
-    cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
-    cudaFree(d_fioIn);
-    cudaFree(d_fioOut);
-    cudaFree(d_pfFilter);
+    gpuErrchk(cudaFree(d_fioIn));
+    gpuErrchk(cudaFree(d_fioOut));
+    gpuErrchk(cudaFree(d_pfFilter));
     return 1;
 }
 
@@ -904,21 +909,21 @@ blur_3d_simpleborders_CUDA_row_size(
     //printf("IMAGE SIZE : (%d, %d, %d)\n", fio1.x, fio1.y, fio1.z);
     // Allocation of device memory + memcpy
     float *d_fioIn; // INPUT IMAGE
-    cudaMalloc((void**)&d_fioIn, iDataSizeFloat); //alloc image
+    gpuErrchk(cudaMalloc((void**)&d_fioIn, iDataSizeFloat) ); //alloc image
     float *array_h=static_cast<float *>(fio1.pfVectors);//get a 1d array of pixel float
-    cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice); //get the array to device image
+    gpuErrchk(cudaMemcpy(d_fioIn, array_h, iDataSizeFloat, cudaMemcpyHostToDevice)); //get the array to device image
 
     float *d_fioOut; // OUTPUT IMAGE
-    cudaMalloc((float**)&d_fioOut, iDataSizeFloat); //alloc image
-    cudaMemset(d_fioOut, 0, iDataSizeFloat); // Set all val to 0
+    gpuErrchk(cudaMalloc((float**)&d_fioOut, iDataSizeFloat)); //alloc image
+    gpuErrchk(cudaMemset(d_fioOut, 0, iDataSizeFloat)); // Set all val to 0
 
     float *d_pfFilter; // FILTER DATAS
-    cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size);
+    gpuErrchk(cudaMalloc((void**)&d_pfFilter, sizeof(float)*kernel_size));
     float *pfFilter_h=(float*)ppImgFilter.ImageRow(0);
-    cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_pfFilter, pfFilter_h, sizeof(float)*kernel_size, cudaMemcpyHostToDevice));
     // Launch Kernel Filter
     conv3d_shared_Row_size<<<dimGrid, dimBlock, (nb_row_treated*cache_size*sizeof(float))>>>(d_fioIn, d_fioOut, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
-    cudaDeviceSynchronize();
+    gpuErrchk(cudaDeviceSynchronize());
     gpuErrchk( cudaPeekAtLastError() );
     /*conv3d_shared_Col<<<dimGrid, dimBlock, dimCache>>>(d_fioOut, d_fioIn, d_pfFilter, fio1.x, fio1.y, fio1.z, kernel_size, kernel_radius, tile_size, cache_size);
     cudaDeviceSynchronize();
@@ -930,13 +935,13 @@ blur_3d_simpleborders_CUDA_row_size(
 
 
     // Copyback image filtered
-    cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaMemcpy(fio2.pfVectors, d_fioOut, iDataSizeFloat, cudaMemcpyDeviceToHost));
 
 
     // Free Allocated Space on Device
-    cudaFree(d_fioIn);
-    cudaFree(d_fioOut);
-    cudaFree(d_pfFilter);
+    gpuErrchk(cudaFree(d_fioIn));
+    gpuErrchk(cudaFree(d_fioOut));
+    gpuErrchk(cudaFree(d_pfFilter));
     return 1;
   }
 
@@ -1005,7 +1010,7 @@ SubSampleInterpolateCuda(
   FEATUREIO &fioOut,
   int best_device_id){
 
-  cudaSetDevice(best_device_id);
+  gpuErrchk(cudaSetDevice(best_device_id));
   int iDataSizeFloat = fioOut.x*fioOut.y*fioOut.z*fioOut.iFeaturesPerVector*sizeof(float);
   assert( fioIn.iFeaturesPerVector == fioOut.iFeaturesPerVector );
 
@@ -1032,7 +1037,7 @@ SubSampleInterpolateCuda(
   dim3 dimBlock(tile_size,tile_size,tile_size);
   dim3 dimGrid(ceil(fioOut.x/double(tile_size)), ceil(fioOut.y/double(tile_size)), ceil(fioOut.z/double(tile_size)));
   cudaSubSampleInterpolate<<<dimGrid, dimBlock, dimCache>>>(fioIn, fioOut, tile_size, cache_size);
-  cudaMemcpy(fioOut.pfVectors, fioOut.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost);
+  gpuErrchk(cudaMemcpy(fioOut.pfVectors, fioOut.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
   return 1;
 
 }
@@ -1143,12 +1148,12 @@ __host__ int fioCudaMultSum(
       cudaFree(d_fioIn2);
       cudaFree(d_fioOut);*/
 
-      cudaMemcpy(fioIn1.d_pfVectors, fioIn1.pfVectors, iDataSizeFloat, cudaMemcpyHostToDevice); //get the array to device image
+      gpuErrchk(cudaMemcpy(fioIn1.d_pfVectors, fioIn1.pfVectors, iDataSizeFloat, cudaMemcpyHostToDevice)); //get the array to device image
 
       CudaMultSum<<<dimGrid, dimBlock>>>(fioIn1, fioIn2, fioOut, fMultIn2);
-      cudaDeviceSynchronize();
+      gpuErrchk(cudaDeviceSynchronize());
 
-      cudaMemcpy(fioOut.pfVectors, fioOut.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost);
+      gpuErrchk(cudaMemcpy(fioOut.pfVectors, fioOut.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
       return 1;
     }
 
@@ -1191,7 +1196,7 @@ __host__ void detectExtrema4D_test_cuda(
     LOCATION_VALUE_XYZ_ARRAY &lvaMaxima,
     int best_device_id
 ){
-  cudaSetDevice(best_device_id);
+  gpuErrchk(cudaSetDevice(best_device_id));
   int iDataSizeFloat = inputC.x*inputC.y*inputC.z*inputC.iFeaturesPerVector*sizeof(float);
   int tile_size=10;
   dim3 dimGrid(ceil(inputC.x/double(tile_size)), ceil(inputC.y/double(tile_size)), ceil(inputC.z/double(tile_size)));
@@ -1199,7 +1204,7 @@ __host__ void detectExtrema4D_test_cuda(
   int cache_size=tile_size + (1 * 2);
   int dimCache = (cache_size*cache_size*cache_size*4)*2;
   d_detectExtrema4D_test<<<dimGrid, dimBlock, dimCache>>>(inputC, inputH, fioSumOfSign, tile_size, cache_size);
-  cudaMemcpy(fioSumOfSign.pfVectors, fioSumOfSign.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost);
+  gpuErrchk(cudaMemcpy(fioSumOfSign.pfVectors, fioSumOfSign.d_pfVectors, iDataSizeFloat, cudaMemcpyDeviceToHost));
   lvaMaxima.iCount=0;
 	lvaMinima.iCount=0;
   for(int z=1; z<fioSumOfSign.z-1; z++){

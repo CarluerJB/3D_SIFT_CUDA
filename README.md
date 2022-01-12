@@ -19,7 +19,6 @@ You will need at least cmake 3.10 and cuda 10 installed on your computer.
 ## Usage
 
 This algorithm is design to extract features from 3D volumes. The main format are accepted ( Nifti and Analyse format)
-The algorith will automatically use the best GPU card on your computer. 
 
     ./featExtract [options] \<input image\> \<output features\>
   
@@ -29,7 +28,7 @@ The algorith will automatically use the best GPU card on your computer.
 		  -w         : output feature geometry in world coordinates, NIFTI qto_xyz matrix (default is voxel units).
 		  -2+        : double input image size.
 		  -2-        : halve input image size.
-		  -d[0-9]    : set device id to be used, 0 mean no device so CPU version will be used.
+		  -d[0-9]    : set GPU device id to be used, without this option CPU version will be used
 		  -b         : Use the BRIEF descriptor format
 		  -br        : Use the RRIEF descriptor format
 		  -bn        : Use the NRRIEF descriptor format

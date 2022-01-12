@@ -287,7 +287,7 @@ main(
 		print_options();
 		return -1;
 	}
-	int best_device_id = check_best_device();
+	int best_device_id = -1;
 	int iArg = 1;
 	int bDoubleImageSize = 0;
 	int bOutputText = 1;
@@ -313,7 +313,7 @@ main(
 			break;
 
 			case 'd':
-				// Option to double initial image size, get 8 times as many features...
+				// Option to use GPU...
 				if( argv[iArg][2] - '0' < 0 || argv[iArg][2] - '0' > get_num_device())
 				{
 					printf( "Error: unknown device: %d\n", argv[iArg][2] - '0' );
@@ -353,10 +353,11 @@ main(
 		print_options();
 		return -1;
 	}
-
+	
 	printf( "Extracting features: %s\n", argv[iArg] );
 
 	nifti_image returnHeader;
+	fioIn.device=best_device_id;
 	if( fioReadNifti( fioIn, argv[iArg], bIsotropicProcessing, 0, &returnHeader ) < 0 )
 	{
 		printf( "Error: could not read input file: %s\n", argv[iArg] );
