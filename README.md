@@ -19,7 +19,6 @@ You will need at least cmake 3.10 and cuda 10 installed on your computer.
 ## Usage
 
 This algorithm is design to extract features from 3D volumes. The main format are accepted ( Nifti and Analyse format)
-The algorith will automatically use the best GPU card on your computer. 
 
     ./featExtract [options] \<input image\> \<output features\>
   
