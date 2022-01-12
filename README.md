@@ -13,7 +13,7 @@ There is also a fast descriptor computation using BRIEF and 2 other method intro
 
 ## Installation
 
-You will need at least cmake 3.10 and cuda 10 installed on your computer. 
+You will need at least cmake 3.10 and cuda installed on your computer. 
 1. Download it !
 2. Go in main directory and cmake the CMAKEList file. 
 3. Once all the makefile are create use the make to finish the installation
