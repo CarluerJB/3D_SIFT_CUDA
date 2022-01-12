@@ -23,7 +23,7 @@ You will need at least cmake 3.10 and cuda installed on your computer.
 
 This algorithm is design to extract features from 3D volumes. The main format are accepted ( Nifti and Analyse format)
 
-    ./featExtract [options] \<input image\> \<output features\>
+    ./featExtract [options] <input image> <output features>
   
 		<input image>: nifti (.nii,.hdr,.nii.gz) or raw input volume (IEEE 32-bit float, little endian).
 		<output features>: output file with features.
