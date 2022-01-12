@@ -36,6 +36,7 @@ This algorithm is design to extract features from 3D volumes. The main format ar
 ## History
 
 Aug 2, 2019 : Publication of CUDA 3D SIFT
+Dec 19, 2021 : Publication of Paper "GPU optimization of the 3D Scale-invariant Feature Transform Algorithm and a Novel BRIEF-inspired 3D Fast Descriptor"
 
 ## Credits
 
@@ -43,7 +44,7 @@ Jean-Baptiste CARLUER at École de technologie supérieure ÉTS.
 
 ## Publication
 
-TODO: link publication here
+https://arxiv.org/abs/2112.10258
 
 ## Software used
 http://www.matthewtoews.com/fba/featExtract1.6.tar.gz}{http://www.matthewtoews.com/fba/featExtract1.6.tar.gz
