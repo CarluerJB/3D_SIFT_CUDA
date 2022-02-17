@@ -7,7 +7,7 @@ SIFT is an algorithm introduced by David G.Lowe in 1999.
 	  
 This code is based on the work of Matthew Towes at École de technologie supérieure ÉTS.
 	  
-This is a CUDA implémentation of the base code. 
+This is a CUDA implementation of the base code. 
 	  
 There is also a fast descriptor computation using BRIEF and 2 other method introduced in the linked publication.
 
